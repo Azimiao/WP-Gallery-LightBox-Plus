@@ -2,9 +2,9 @@
 /**
  * Plugin Name: WP Gallery LightBox Plus 
  * Plugin URI: https://www.azimiao.com
- * Description: 一个对WP自带相册增加LightBox特效的小插件
- * Version: 1.0.0
- * Author: 野兔#梓喵出没
+ * Description: 一个对WP自带相册增加❤LightBox特效❤的小插件
+ * Version: 1.0.1
+ * Author: 野兔❤梓喵出没
  * Author URI: https://www.azimiao.com
  */
 remove_shortcode('gallery', 'gallery_shortcode');
@@ -161,12 +161,11 @@ function zm_gallery_shortcode( $attr ) {
     $LightBoxjsPath = plugins_url("js",__FILE__);
     $LightBoxCssPath = plugins_url("css",__FILE__);
 
-    //输出引用信息
+	//输出引用信息
+	//不包含Jquery库
 	$LBFilesRefer =  "
 	<link rel='stylesheet' href='$LightBoxCssPath/lightbox.css' type='text/css'/>
-    <script src='$LightBoxjsPath/prototype.js' type='text/javascript'></script>
-	<script src='$LightBoxjsPath/scriptaculous.js?load=effects,builder' type='text/javascript'></script>
-	<script src='$LightBoxjsPath/lightbox.js' type='text/javascript'></script>";
+    <script src='$LightBoxjsPath/lightbox.js' type='text/javascript'></script>";
 
 	foreach ( $attachments as $id => $attachment ) {
 		$attr = ( trim( $attachment->post_excerpt ) ) ? array( 'aria-describedby' => "$selector-$id" ) : '';
@@ -175,7 +174,7 @@ function zm_gallery_shortcode( $attr ) {
             $img_url = wp_get_attachment_url($id);
 			//$image_output = wp_get_attachment_link( $id, $atts['size'], false, false, false, $attr );
             $image_output ="";
-            $image_output .= "<a href='$img_url' rel='lightbox[$thumbFlag]'><img src='$picInfo[0]' width='$picInfo[1]' height='$picInfo[2]' /></a>";
+            $image_output .= "<a href='$img_url' data-lightbox='lightbox[$thumbFlag]'><img src='$picInfo[0]' width='$picInfo[1]' height='$picInfo[2]' /></a>";
         } elseif ( ! empty( $atts['link'] ) && 'none' === $atts['link'] ) {
 			$image_output = wp_get_attachment_image( $id, $atts['size'], false, $attr );
 		} else {
