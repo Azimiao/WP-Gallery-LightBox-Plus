@@ -3,12 +3,17 @@
  * Plugin Name: WP Gallery LightBox Plus 
  * Plugin URI: https://www.azimiao.com
  * Description: 一个对WP自带相册增加❤LightBox特效❤的小插件
- * Version: 1.0.1
+ * Version: 1.0.2
  * Author: 野兔❤梓喵出没
  * Author URI: https://www.azimiao.com
  */
 remove_shortcode('gallery', 'gallery_shortcode');
 add_shortcode('gallery', 'zm_gallery_shortcode');
+
+if(is_admin())
+{
+	require_once("wp_gallery_light_admin.php");
+}
 
 function zm_gallery_shortcode( $attr ) {
 	$post = get_post();
@@ -117,7 +122,20 @@ function zm_gallery_shortcode( $attr ) {
 	 *                    Defaults to false if the theme supports HTML5 galleries.
 	 *                    Otherwise, defaults to true.
 	 */
-	if ( apply_filters( 'use_default_gallery_style', ! $html5 ) ) {
+	$styleFlag = false;
+	$jqueryFlag = false;
+	$oooo = get_option('wp_gallerylightbox_config');
+	if(is_array($oooo) && $oooo['customCss'] != "")
+	{
+		$styleFlag = true;
+	}
+
+	if(is_array($oooo) && $oooo["isJQuery"])
+	{
+		$jqueryFlag = true;
+	}
+
+	if ( apply_filters( 'use_default_gallery_style', ! $html5 )  && !$styleFlag ) {
 		$gallery_style = "
 		<style type='text/css'>
 			#{$selector} {
@@ -137,6 +155,13 @@ function zm_gallery_shortcode( $attr ) {
 			}
 			/* see gallery_shortcode() in wp-includes/media.php */
 		</style>\n\t\t";
+	}else{
+		$gallery_style = $oooo['customCss'];
+	}
+
+	$jQSC = "";
+	if($jqueryFlag){
+		$jQSC .= "<script src='//libs.baidu.com/jquery/1.8.3/jquery.min.js'></script>";
 	}
 
 	$size_class = sanitize_html_class( $atts['size'] );
@@ -150,7 +175,7 @@ function zm_gallery_shortcode( $attr ) {
 	 * @param string $gallery_style Default CSS styles and opening HTML div container
 	 *                              for the gallery shortcode output.
 	 */
-	$output = apply_filters( 'gallery_style', $gallery_style . $gallery_div );
+	$output = apply_filters( 'gallery_style', $jQSC . $gallery_style . $gallery_div );
 
 	$i = 0;
 
