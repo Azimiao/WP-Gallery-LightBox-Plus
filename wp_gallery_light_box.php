@@ -1,7 +1,7 @@
 <?php
 /**
  * Plugin Name: WP Gallery LightBox Plus 
- * Plugin URI: https://www.azimiao.com
+ * Plugin URI: https://www.azimiao.com/3861.html
  * Description: 一个对WP自带相册增加❤LightBox特效❤的小插件
  * Version: 1.0.2
  * Author: 野兔❤梓喵出没
