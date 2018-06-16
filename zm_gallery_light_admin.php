@@ -1,6 +1,6 @@
 <?php
 
-class WP_GalleryLightBox_Admin{
+class GalleryLightBox_Admin{
 
     function __construct(){
         //创建菜单
@@ -9,34 +9,53 @@ class WP_GalleryLightBox_Admin{
 
     function getOption(){
         //获取配置
-        $options = get_option('wp_gallerylightbox_config');
+        $options = get_option('zm_gallerylightbox_config');
         //判断
         if(!is_array($options))
         {
             $options['customCss'] = '';
-            $options['isJQuery'] = false;
-            update_option('wp_gallerylightbox_config', $options);
+            update_option('zm_gallerylightbox_config', $options);
         }
         return $options;
     }
 
     function init(){
-        $options = $this->getOption();
+        $galleryNoceFlag = false;
         //添加子菜单页面
-        add_options_page("WP-Gallery-LightBox","WP-Gallery-LightBox","manage_options","wp_gallerylightbox_setting",array($this,"optionPage"));
-        
-        if(isset($_POST['wp_gallerylightbox_save'])) {
-            $options['customCss'] = stripslashes($_POST['customCss']);
-            if ($_POST['isJQuery']) { $options['isJQuery'] = (bool)true; } else { $options['isJQuery'] = (bool)false; }
-            update_option('wp_gallerylightbox_config', $options);
-            echo "<div id='message' class='updated fade'><p><strong>数据已更新</strong></p></div>";
-        
-        }else if(isset($_POST["wp_gallerylightbox_clear"]))
+        add_options_page("WP-Gallery-LightBox","WP-Gallery-LightBox","manage_options","zm_gallerylightbox_setting",array($this,"optionPage"));
+        if($_POST["gallery-lightbox-save-nonce"])
         {
-            $options['customCss'] = "";
-            $options["isJQuery"] = false;
-            update_option('wp_gallerylightbox_config', $options);
-            echo "<div id='message' class='error fade'><p><strong>数据已清除</strong></p></div>";
+            $galleryNoce =  $_POST["gallery-lightbox-save-nonce"];
+            
+            if(wp_verify_nonce( $galleryNoce, 'gallery-lightbox-nonce'))
+            {
+                //echo ">>>>>>>>>>>>>>>>>>True";
+                $galleryNoceFlag = true;
+            }else{
+                //echo "<<<<<<<<<<<<<<<<<<False";
+            }
+        }
+        $sCheck1 = is_admin() && isset($_POST[ 'zm_gallerylightbox_save' ]);
+        $sCheck2 = is_admin() && isset($_POST[ 'zm_gallerylightbox_clear' ]);
+        
+        $options = $this->getOption();
+
+        if(($sCheck1 || $sCheck2) && $galleryNoce){
+            if($sCheck1) {
+                $customCss = $_POST['customCss'];
+                $customCss = strip_tags($customCss);
+                $options['customCss'] = stripslashes($customCss);
+                update_option('zm_gallerylightbox_config', $options);
+                echo "<div id='message' class='updated fade'><p><strong>数据已更新</strong></p></div>";
+            
+            }else if($sCheck2)
+            {
+                $options['customCss'] = "";
+                update_option('zm_gallerylightbox_config', $options);
+                echo "<div id='message' class='error fade'><p><strong>数据已清除</strong></p></div>";
+            }
+        }else{
+            //die("安全检查失败");
         }
 
     }
@@ -134,16 +153,11 @@ class WP_GalleryLightBox_Admin{
                     自定义相册缩略图CSS(不懂请留空)：
                     <textarea name ="customCss" style="width:100%;height:200px"><?php echo($options['customCss']); ?></textarea>
                 </tr>
-               
-                <tr>
-                    <td>是否由本插件引入JQuery库?(若点击缩略图无弹出框，请勾选) &nbsp;&nbsp;&nbsp;<label><input name="isJQuery" type="checkbox" value="checkbox" <?php if($options['isJQuery']) echo "checked='checked'"; ?> /> 我需要</label></td>
-                </tr>
-
-
-                
 
                 </table>
-                <input type="submit" name="wp_gallerylightbox_save" value="保存信息"  style="background:#ff8c83;color:#fff;border:none;cursor:pointer"/>&nbsp;&nbsp;&nbsp;&nbsp;<input type="submit" name="wp_gallerylightbox_clear" value="清空记录"  style="background:#ff8c83;color:#fff;border:none;cursor:pointer"/>
+
+                <input type="hidden" id="gallery-lightbox-save-nonce" name="gallery-lightbox-save-nonce" value="<?php echo wp_create_nonce ('gallery-lightbox-nonce'); ?>" />
+                <input type="submit" name="zm_gallerylightbox_save" value="保存信息"  style="background:#ff8c83;color:#fff;border:none;cursor:pointer"/>&nbsp;&nbsp;&nbsp;&nbsp;<input type="submit" name="zm_gallerylightbox_clear" value="清空记录"  style="background:#ff8c83;color:#fff;border:none;cursor:pointer"/>
             </div>
         </fieldset>
         </div>
@@ -155,5 +169,5 @@ class WP_GalleryLightBox_Admin{
 
 }
 
-new WP_GalleryLightBox_Admin();
+new GalleryLightBox_Admin();
 ?>

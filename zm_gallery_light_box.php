@@ -1,20 +1,46 @@
 <?php
 /**
  * Plugin Name: WP Gallery LightBox Plus 
- * Plugin URI: https://www.azimiao.com/3861.html
- * Description: 一个对WP自带相册增加❤LightBox特效❤的小插件
- * Version: 1.0.2
- * Author: 野兔❤梓喵出没
+ * Plugin URI: https://www.azimiao.com
+ * Description: 一个对WP自带相册增加LightBox特效的小插件
+ * Version: 1.0.3
+ * Author: azimiao(野兔#梓喵出没)
  * Author URI: https://www.azimiao.com
+ * License: GPL
  */
-remove_shortcode('gallery', 'gallery_shortcode');
-add_shortcode('gallery', 'zm_gallery_shortcode');
+
+/*  Copyright 2018  azimiao  (email : admin@azimiao.com)
+ 
+    This program is free software; you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation; either version 2 of the License, or
+    (at your option) any later version.
+ 
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+ 
+    You should have received a copy of the GNU General Public License
+    along with this program; if not, write to the Free Software
+    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
+*/
 
 if(is_admin())
 {
-	require_once("wp_gallery_light_admin.php");
+	require_once("zm_gallery_light_admin.php");
 }
 
+remove_shortcode('gallery', 'gallery_shortcode');
+add_shortcode('gallery', 'zm_gallery_shortcode');
+
+/**
+ * Origin function : gallery_shortcode()
+ * media.php line 1595
+ * Source Code Create By WordPress.org( General Public License )
+ * 
+ * Modify for add the Lighbox plugin.
+ */
 function zm_gallery_shortcode( $attr ) {
 	$post = get_post();
 
@@ -113,6 +139,16 @@ function zm_gallery_shortcode( $attr ) {
 
 	$gallery_style = '';
 
+	//Add By azimiao.com for output the custom style;
+	$zmGLCCStyleFlag = false;
+
+	$zmGLCConfig = get_option('zm_gallerylightbox_config');
+	if(is_array($zmGLCConfig) && $zmGLCConfig['customCss'] != "")
+	{
+		$zmGLCCStyleFlag = true;
+	}
+	//end
+
 	/**
 	 * Filters whether to print default gallery styles.
 	 *
@@ -122,20 +158,7 @@ function zm_gallery_shortcode( $attr ) {
 	 *                    Defaults to false if the theme supports HTML5 galleries.
 	 *                    Otherwise, defaults to true.
 	 */
-	$styleFlag = false;
-	$jqueryFlag = false;
-	$oooo = get_option('wp_gallerylightbox_config');
-	if(is_array($oooo) && $oooo['customCss'] != "")
-	{
-		$styleFlag = true;
-	}
-
-	if(is_array($oooo) && $oooo["isJQuery"])
-	{
-		$jqueryFlag = true;
-	}
-
-	if ( apply_filters( 'use_default_gallery_style', ! $html5 )  && !$styleFlag ) {
+	if ( apply_filters( 'use_default_gallery_style', ! $html5 )  && !$zmGLCCStyleFlag ) {
 		$gallery_style = "
 		<style type='text/css'>
 			#{$selector} {
@@ -156,12 +179,7 @@ function zm_gallery_shortcode( $attr ) {
 			/* see gallery_shortcode() in wp-includes/media.php */
 		</style>\n\t\t";
 	}else{
-		$gallery_style = $oooo['customCss'];
-	}
-
-	$jQSC = "";
-	if($jqueryFlag){
-		$jQSC .= "<script src='//libs.baidu.com/jquery/1.8.3/jquery.min.js'></script>";
+		$gallery_style = "<style>" . $zmGLCConfig['customCss'] . "</style>";
 	}
 
 	$size_class = sanitize_html_class( $atts['size'] );
@@ -175,32 +193,36 @@ function zm_gallery_shortcode( $attr ) {
 	 * @param string $gallery_style Default CSS styles and opening HTML div container
 	 *                              for the gallery shortcode output.
 	 */
-	$output = apply_filters( 'gallery_style', $jQSC . $gallery_style . $gallery_div );
+	$output = apply_filters( 'gallery_style', $gallery_style . $gallery_div );
 
 	$i = 0;
 
     $thumbFlag = "galleryid-{$id}";
     
 
-    // echo '<link rel="stylesheet" type="text/css" href="' . plugins_url('css/css.css',__FILE__) . ' " />';
+
     $LightBoxjsPath = plugins_url("js",__FILE__);
     $LightBoxCssPath = plugins_url("css",__FILE__);
 
-	//输出引用信息
-	//不包含Jquery库
+	//Add By Azimiao.com for output the lightbox library and it's style.
 	$LBFilesRefer =  "
 	<link rel='stylesheet' href='$LightBoxCssPath/lightbox.css' type='text/css'/>
     <script src='$LightBoxjsPath/lightbox.js' type='text/javascript'></script>";
+	//end
 
 	foreach ( $attachments as $id => $attachment ) {
 		$attr = ( trim( $attachment->post_excerpt ) ) ? array( 'aria-describedby' => "$selector-$id" ) : '';
 		if ( ! empty( $atts['link'] ) && 'file' === $atts['link'] ) {
-            $picInfo = wp_get_attachment_image_src($id,$atts["size"],false);
-            $img_url = wp_get_attachment_url($id);
+            $zm_picInfo = wp_get_attachment_image_src($id,$atts["size"],false);
+            $zm_GLC_img_url = wp_get_attachment_url($id);
 			//$image_output = wp_get_attachment_link( $id, $atts['size'], false, false, false, $attr );
+
+			//Add By Azimiao.com for output the lightbox plugin need's html when the type is file.
             $image_output ="";
-            $image_output .= "<a href='$img_url' data-lightbox='lightbox[$thumbFlag]'><img src='$picInfo[0]' width='$picInfo[1]' height='$picInfo[2]' /></a>";
-        } elseif ( ! empty( $atts['link'] ) && 'none' === $atts['link'] ) {
+            $image_output .= "<a href='$zm_GLC_img_url' data-lightbox='lightbox[$thumbFlag]'><img src='$zm_picInfo[0]' width='$zm_picInfo[1]' height='$zm_picInfo[2]' /></a>";
+			//end
+
+		} elseif ( ! empty( $atts['link'] ) && 'none' === $atts['link'] ) {
 			$image_output = wp_get_attachment_image( $id, $atts['size'], false, $attr );
 		} else {
 			$image_output = wp_get_attachment_link( $id, $atts['size'], true, false, false, $attr );
@@ -211,7 +233,6 @@ function zm_gallery_shortcode( $attr ) {
 		if ( isset( $image_meta['height'], $image_meta['width'] ) ) {
 			$orientation = ( $image_meta['height'] > $image_meta['width'] ) ? 'portrait' : 'landscape';
 		}
-		//此处为单个图片的容器
 		$output .= "<{$itemtag} class='gallery-item'>";
 		$output .= "
 			<{$icontag} class='gallery-icon {$orientation}'>
