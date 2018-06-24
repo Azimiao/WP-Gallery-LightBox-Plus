@@ -40,7 +40,7 @@ class GalleryLightBox_Admin{
         
         $options = $this->getOption();
 
-        if(($sCheck1 || $sCheck2) && $galleryNoce){
+        if(($sCheck1 || $sCheck2) && $galleryNoceFlag){
             if($sCheck1) {
                 $customCss = $_POST['customCss'];
                 $customCss = strip_tags($customCss);
