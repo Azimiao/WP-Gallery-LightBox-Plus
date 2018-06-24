@@ -13,9 +13,9 @@
  */
  
 /* 
- * ❤ Modify By Yetu(azimiao.com) ❤
- * ❤ Life Can Be Simple ! ❤
- * ❤ 2018.06.12 ❤ 
+ * Modify By Yetu(azimiao.com) 
+ * Life Can Be Simple ! 
+ * 2018.06.12 
  * 
  */
 
