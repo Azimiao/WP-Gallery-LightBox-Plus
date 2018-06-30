@@ -393,7 +393,7 @@
     this.updateNav();
     this.updateDetails();
     this.preloadNeighboringImages();
-    this.enableKeyboardNav();
+    //this.enableKeyboardNav();
   };
 
   // Display previous and next navigation if appropriate.
