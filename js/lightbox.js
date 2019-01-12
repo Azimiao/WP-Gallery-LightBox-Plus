@@ -60,6 +60,7 @@
     showImageNumberLabel: true,
     wrapAround: false,
     disableScrolling: false,
+    canChange:true,
     /*
     Sanitize Title
     If the caption data is trusted, for example you are hardcoding it in, then leave this to false.
@@ -272,6 +273,11 @@
   // Hide most UI elements in preparation for the animated resizing of the lightbox.
   Lightbox.prototype.changeImage = function(imageNumber) {
     var self = this;
+    if(!this.options.canChange){
+      return;
+    }
+    this.options.canChange =false;
+    
 
     this.disableKeyboardNav();
     var $image = this.$lightbox.find('.lb-image');
@@ -350,6 +356,7 @@
     this.$overlay
       .width($(document).width())
       .height($(document).height());
+      this.options.canChange = true;
   };
 
   // Animate the size of the lightbox to fit the image we are showing
