@@ -3,7 +3,7 @@
  * Plugin Name: WP Gallery LightBox Plus 
  * Plugin URI: https://www.azimiao.com
  * Description: 一个对WP自带相册增加LightBox特效的小插件
- * Version: 1.0.3
+ * Version: 1.0.4
  * Author: azimiao(野兔#梓喵出没)
  * Author URI: https://www.azimiao.com
  * License: GPL
@@ -33,6 +33,7 @@ if(is_admin())
 
 remove_shortcode('gallery', 'gallery_shortcode');
 add_shortcode('gallery', 'zm_gallery_shortcode');
+add_action( 'wp_enqueue_scripts', 'RegNeedScripts' );
 
 /**
  * Origin function : gallery_shortcode()
@@ -201,13 +202,13 @@ function zm_gallery_shortcode( $attr ) {
     
 
 
-    $LightBoxjsPath = plugins_url("js",__FILE__);
-    $LightBoxCssPath = plugins_url("css",__FILE__);
+    //$LightBoxjsPath = plugins_url("js",__FILE__);
+    //$LightBoxCssPath = plugins_url("css",__FILE__);
 
 	//Add By Azimiao.com for output the lightbox library and it's style.
-	$LBFilesRefer =  "
-	<link rel='stylesheet' href='$LightBoxCssPath/lightbox.css' type='text/css'/>
-    <script src='$LightBoxjsPath/lightbox.js' type='text/javascript'></script>";
+	//$LBFilesRefer =  "
+	//<link rel='stylesheet' href='$LightBoxCssPath/lightbox.css' type='text/css'/>
+    //<script src='$LightBoxjsPath/lightbox.js' type='text/javascript'></script>";
 	//end
 
 	foreach ( $attachments as $id => $attachment ) {
@@ -258,7 +259,23 @@ function zm_gallery_shortcode( $attr ) {
 	$output .= "
 		</div>\n";
 	
-		$output .= $LBFilesRefer;
+		//$output .= $LBFilesRefer;
 	
 	return $output;
+}
+
+function RegNeedScripts(){
+	$LightBoxjsPath = plugins_url("js",__FILE__);
+	$LightBoxCssPath = plugins_url("css",__FILE__);
+
+//Add By Azimiao.com for output the lightbox library and it's style.
+//$LBFilesRefer =  "
+//<link rel='stylesheet' href='$LightBoxCssPath/lightbox.css' type='text/css'/>
+//<script src='$LightBoxjsPath/lightbox.js' type='text/javascript'></script>";
+//end
+
+	wp_register_script( 'zmlightboxjs', "$LightBoxjsPath/lightbox.js" );
+	wp_enqueue_script( 'zmlightboxjs' );//挂载脚本
+	wp_register_style( 'zmlightboxcss', "$LightBoxCssPath/lightbox.css" );
+	wp_enqueue_style( 'zmlightboxcss' );
 }

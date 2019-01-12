@@ -166,8 +166,9 @@ class GalleryLightBox_Admin{
 
         }
     
+        
 
-}
+    }
 
 new GalleryLightBox_Admin();
 ?>
