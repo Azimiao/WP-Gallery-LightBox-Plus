@@ -23,7 +23,7 @@ class GalleryLightBox_Admin{
         $galleryNoceFlag = false;
         //添加子菜单页面
         add_options_page("WP-Gallery-LightBox","WP-Gallery-LightBox","manage_options","zm_gallerylightbox_setting",array($this,"optionPage"));
-        if($_POST["gallery-lightbox-save-nonce"])
+        if(!empty($_POST["gallery-lightbox-save-nonce"]))
         {
             $galleryNoce =  $_POST["gallery-lightbox-save-nonce"];
             
@@ -137,6 +137,7 @@ class GalleryLightBox_Admin{
             2.选择你喜欢的图像(多选)，后点击左下角<strong>创建新相册</strong>，进入相册设置页面。<br>
             3.在右上角设置相册尺寸，排序，并将<strong>链接到</strong>选项修改为<strong>媒体文件</strong>。<br>
             4.点击插入相册，即可在文章中加入相册短代码。<br>
+            <strong>请注意：本插件依赖JQuery。</strong><br>
             </p>
             </div>
         </fieldset>
