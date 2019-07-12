@@ -152,7 +152,7 @@ class GalleryLightBox_Admin{
 
                 <tr>
                     自定义相册缩略图CSS(不懂请留空)：
-                    <textarea name ="customCss" style="width:100%;height:200px"><?php echo($options['customCss']); ?></textarea>
+                    <textarea name ="customCss" style="width:100%;height:200px"><?php echo(empty($options['customCss']) ? null: $options['customCss']); ?></textarea>
                 </tr>
 
                 </table>
