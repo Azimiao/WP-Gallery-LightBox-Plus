@@ -384,7 +384,7 @@
           width: newWidth
         },this.options.resizeDuration,"swing",function(){
           postResize();
-        }).bind(this)
+        }.bind(this))
       }.bind(this,this.$outerContainer));
     } else {
       postResize();
