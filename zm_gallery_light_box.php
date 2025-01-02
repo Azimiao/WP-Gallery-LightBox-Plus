@@ -4,7 +4,7 @@
  * Plugin Name: WP Gallery LightBox Plus 
  * Plugin URI: https://www.azimiao.com
  * Description: 一个对WP自带相册增加LightBox特效的小插件
- * Version: 1.0.4
+ * Version: 1.0.5
  * Author: azimiao(野兔#梓喵出没)
  * Author URI: https://www.azimiao.com
  * License: GPL
@@ -42,7 +42,7 @@ function RegNeedScripts()
 	$LightBoxCssPath = plugins_url("css", __FILE__);
 
 	wp_register_script('zmlightboxjs', "$LightBoxjsPath/lightbox.js", array("jquery"));
-	wp_enqueue_script('zmlightboxjs'); 
+	wp_enqueue_script('zmlightboxjs');
 	wp_register_style('zmlightboxcss', "$LightBoxCssPath/lightbox.css");
 	wp_enqueue_style('zmlightboxcss');
 }
@@ -82,6 +82,14 @@ function custom_gallery_output($output, $atts)
 				margin: 1px;
 				box-shadow:0 0 0 1px #12376914,0 1px 1px #1237690a,0 3px 3px #12376908,0 6px 4px #12376905,0 11px 4px #12376903
 			}
+
+
+				#{$selector} a {
+				display:block;
+				text-decoration:unset;
+				border:none !important;
+			}
+
 				
 			#{$selector} img {
 				    box-sizing:border-box;
@@ -143,12 +151,11 @@ function custom_gallery_output($output, $atts)
 		foreach ($ids as $id) {
 			$image_output .= "<figure class='gallery-item'>";
 			$url_show = wp_get_attachment_image_src($id, $atts["size"] ?? "thumbnail", false);
-			$url_real = get_attachment_link( $id ) ?? "";
+			$url_real = get_attachment_link($id) ?? "";
 			$image_output .= "<a href='$url_real' target='_blank'> <img src='$url_show[0]'/><div class='magnifier-icon' title='点击查看'></div></a>";
 			$image_output .= "</figure>";
 		}
-		
-	}else if ($atts['link'] === 'file') {
+	} else if ($atts['link'] === 'file') {
 
 		foreach ($ids as $id) {
 			$image_output .= "<figure class='gallery-item'>";
@@ -165,7 +172,7 @@ function custom_gallery_output($output, $atts)
 			$image_output .= "<img src='$url_show[0]'/>";
 			$image_output .= "</figure>";
 		}
-	}else{
+	} else {
 		return $output;
 	}
 
