@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Plugin Name: WP Gallery LightBox Plus 
  * Plugin URI: https://www.azimiao.com
@@ -26,47 +27,47 @@
     Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
-if(is_admin())
-{
+if (is_admin()) {
 	require_once("zm_gallery_light_admin.php");
 }
 
-add_action( 'wp_enqueue_scripts', 'RegNeedScripts' );
+add_action('wp_enqueue_scripts', 'RegNeedScripts');
 add_filter('post_gallery', 'custom_gallery_output', 10, 2);
 
 
 
-function RegNeedScripts(){
-	$LightBoxjsPath = plugins_url("js",__FILE__);
-	$LightBoxCssPath = plugins_url("css",__FILE__);
+function RegNeedScripts()
+{
+	$LightBoxjsPath = plugins_url("js", __FILE__);
+	$LightBoxCssPath = plugins_url("css", __FILE__);
 
-	wp_register_script( 'zmlightboxjs', "$LightBoxjsPath/lightbox.js",array("jquery") );
-	wp_enqueue_script( 'zmlightboxjs' );//挂载脚本
-	wp_register_style( 'zmlightboxcss', "$LightBoxCssPath/lightbox.css" );
-	wp_enqueue_style( 'zmlightboxcss' );
+	wp_register_script('zmlightboxjs', "$LightBoxjsPath/lightbox.js", array("jquery"));
+	wp_enqueue_script('zmlightboxjs'); 
+	wp_register_style('zmlightboxcss', "$LightBoxCssPath/lightbox.css");
+	wp_enqueue_style('zmlightboxcss');
 }
 
-function custom_gallery_output($output, $atts) {
+function custom_gallery_output($output, $atts)
+{
 
 	static $instance = 0;
 	$instance++;
 
-    // 检查是否是 file 类型的相册
-    if (isset($atts['link']) && $atts['link'] === 'file') {
-        $ids = isset($atts['ids']) ? explode(',', $atts['ids']) : [];
-        if (empty($ids)) {
-            return '';
-        }
+	$ids = isset($atts['ids']) ? explode(',', $atts['ids']) : [];
+	if (empty($ids)) {
+		return '';
+	}
 
-		$image_output ="";
+	$image_output = "";
 
-		$columns = intval( $atts['columns'] ?? 3);
-		$itemwidth = $columns > 0 ? floor(100/$columns) : 100;
-		
+	$columns = intval($atts['columns'] ?? 3);
+	$oneDivCol = 1.0 / $columns;
+	$itemwidth = $columns > 0 ? (100.0 * $oneDivCol) : 100;
 
 
-		$selector = "gallery-{$instance}";
-		$gallery_style = "
+
+	$selector = "gallery-{$instance}";
+	$gallery_style = "
 		<style type='text/css'>
 			#{$selector} {
 				display: flex;
@@ -81,6 +82,7 @@ function custom_gallery_output($output, $atts) {
 				margin: 1px;
 				box-shadow:0 0 0 1px #12376914,0 1px 1px #1237690a,0 3px 3px #12376908,0 6px 4px #12376905,0 11px 4px #12376903
 			}
+				
 			#{$selector} img {
 				    box-sizing:border-box;
 					width: 100%;
@@ -90,38 +92,83 @@ function custom_gallery_output($output, $atts) {
 					padding: 0;
 					border: none;
 			}
-			#{$selector} .gallery-caption {
-				margin-left: 0;
+
+			#{$selector} .magnifier-icon {
+				position: absolute;
+				box-sizing: border-box; 
+				bottom: 10px;
+				right: 10px;
+				width: 14px;
+				height: 14px;
+				background: rgba(0, 0, 0, 0.5); /* 半透明背景 */
+				border-radius: 50%;
+				display: flex;
+				align-items: center;
+				justify-content: center;
+				cursor: pointer;
+				transition: transform 0.3s ease, background 0.3s ease;
 			}
-			/* see gallery_shortcode() in wp-includes/media.php */
+
+			#{$selector} .magnifier-icon::before {
+				content: '';
+				box-sizing: border-box; 
+				width: 14px; /* 改成10px */
+				height: 14px; /* 改成10px */
+				border: 2px solid white;
+				border-radius: 50%; /* 确保圆形 */
+				display: inline-block;
+				position: relative;
+			}
+
+			#{$selector} a:hover .magnifier-icon {
+			transform: scale(1.25); /* 放大效果 */
+			background: rgba(255, 255, 255, 0.7);
+			}
 		</style>\n\t\t";
 
 
 
-		$image_output .= $gallery_style;
+	$image_output .= $gallery_style;
 
-		$zmGLCConfig = get_option('zm_gallerylightbox_config');
-		if(is_array($zmGLCConfig) && $zmGLCConfig['customCss'] != "")
-		{
-			$image_output .= "<style>" . $zmGLCConfig['customCss'] . "</style>";
-		}
+	$zmGLCConfig = get_option('zm_gallerylightbox_config');
+	if (is_array($zmGLCConfig) && $zmGLCConfig['customCss'] != "") {
+		$image_output .= "<style>" . $zmGLCConfig['customCss'] . "</style>";
+	}
 
-		$image_output .= "<div id='$selector' class='gallery gallery-columns-{$columns}'>\r\n";
+	$image_output .= "<div id='$selector' class='gallery gallery-columns-{$columns}'>\r\n";
 
-        foreach ($ids as $id) {
-			 $image_output .= "<figure class='gallery-item'>";
-			$url_show = wp_get_attachment_image_src($id,$atts["size"] ?? "thumbnail",false);
-            $url_real = wp_get_attachment_url($id);
-            $image_output .= "<a href='$url_real' data-lightbox='gallery-$instance'><img src='$url_show[0]' /></a>";
+
+	if (!isset($atts['link'])) {
+
+		foreach ($ids as $id) {
+			$image_output .= "<figure class='gallery-item'>";
+			$url_show = wp_get_attachment_image_src($id, $atts["size"] ?? "thumbnail", false);
+			$url_real = get_attachment_link( $id ) ?? "";
+			$image_output .= "<a href='$url_real' target='_blank'> <img src='$url_show[0]'/><div class='magnifier-icon' title='点击查看'></div></a>";
 			$image_output .= "</figure>";
 		}
+		
+	}else if ($atts['link'] === 'file') {
 
-		$image_output .= "</div>";
-        return $image_output;
-    }
+		foreach ($ids as $id) {
+			$image_output .= "<figure class='gallery-item'>";
+			$url_show = wp_get_attachment_image_src($id, $atts["size"] ?? "thumbnail", false);
+			$url_real = wp_get_attachment_url($id);
+			$image_output .= "<a href='$url_real' data-lightbox='gallery-$instance' ><img src='$url_show[0]' /><div class='magnifier-icon' title='点击查看'></div></a>";
+			$image_output .= "</figure>";
+		}
+	} else if ($atts['link'] === 'none') {
+		foreach ($ids as $id) {
+			$image_output .= "<figure class='gallery-item'>";
+			$url_show = wp_get_attachment_image_src($id, $atts["size"] ?? "thumbnail", false);
+			$url_real = wp_get_attachment_url($id);
+			$image_output .= "<img src='$url_show[0]'/>";
+			$image_output .= "</figure>";
+		}
+	}else{
+		return $output;
+	}
 
-    // 如果不是 file 类型，返回默认行为
-    return $output;
+	$image_output .= "</div>";
+	return $image_output;
 }
-
-
