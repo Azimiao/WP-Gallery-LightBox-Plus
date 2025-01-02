@@ -274,7 +274,7 @@ function RegNeedScripts(){
 //<script src='$LightBoxjsPath/lightbox.js' type='text/javascript'></script>";
 //end
 
-	wp_register_script( 'zmlightboxjs', "$LightBoxjsPath/lightbox.js" );
+	wp_register_script( 'zmlightboxjs', "$LightBoxjsPath/lightbox.js",array("jquery") );
 	wp_enqueue_script( 'zmlightboxjs' );//挂载脚本
 	wp_register_style( 'zmlightboxcss', "$LightBoxCssPath/lightbox.css" );
 	wp_enqueue_style( 'zmlightboxcss' );
