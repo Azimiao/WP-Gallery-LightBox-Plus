@@ -61,8 +61,6 @@ function custom_gallery_output($output, $atts)
 	$image_output = "";
 
 	$columns = intval($atts['columns'] ?? 3);
-	$oneDivCol = 1.0 / $columns;
-	$itemwidth = $columns > 0 ? (100.0 * $oneDivCol) : 100;
 
 
 
@@ -70,16 +68,14 @@ function custom_gallery_output($output, $atts)
 	$gallery_style = "
 		<style type='text/css'>
 			#{$selector} {
-				display: flex;
-				flex-wrap: wrap;
-				gap: 5px;
+				column-count: {$columns};
+				column-gap: 4px;
 			}
 			#{$selector} .gallery-item {
-				flex: 1 1 calc({$itemwidth}% - 6px);
-				max-width: calc({$itemwidth}% - 6px);
+
 				box-sizing: border-box;
 				border:6px solid #fff;
-				margin: 1px;
+				margin: 1px 1px 5px 1px;
 				box-shadow:0 0 0 1px #12376914,0 1px 1px #1237690a,0 3px 3px #12376908,0 6px 4px #12376905,0 11px 4px #12376903
 			}
 
