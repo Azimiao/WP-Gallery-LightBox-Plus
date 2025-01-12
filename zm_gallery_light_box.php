@@ -4,8 +4,8 @@
  * Plugin Name: WP Gallery LightBox Plus 
  * Plugin URI: https://www.azimiao.com
  * Description: 一个对WP自带相册增加LightBox特效的小插件
- * Version: 1.0.5
- * Author: azimiao(野兔#梓喵出没)
+ * Version: 1.0.6
+ * Author: WildRabbit
  * Author URI: https://www.azimiao.com
  * License: GPL
  */
@@ -31,9 +31,12 @@ if (is_admin()) {
 	require_once("zm_gallery_light_admin.php");
 }
 
+$defaultImageStr = "zm-gallery-thumb";
+
 add_action('wp_enqueue_scripts', 'RegNeedScripts');
 add_filter('post_gallery', 'custom_gallery_output', 10, 2);
 
+add_image_size( $defaultImageStr, 320, 0, false);
 
 
 function RegNeedScripts()
@@ -50,7 +53,10 @@ function RegNeedScripts()
 function custom_gallery_output($output, $atts)
 {
 
+	global $defaultImageStr;
+
 	static $instance = 0;
+
 	$instance++;
 
 	$ids = isset($atts['ids']) ? explode(',', $atts['ids']) : [];
@@ -146,7 +152,7 @@ function custom_gallery_output($output, $atts)
 
 		foreach ($ids as $id) {
 			$image_output .= "<figure class='gallery-item'>";
-			$url_show = wp_get_attachment_image_src($id, $atts["size"] ?? "thumbnail", false);
+			$url_show = wp_get_attachment_image_src($id, $atts["size"] ?? $defaultImageStr, false);
 			$url_real = get_attachment_link($id) ?? "";
 			$image_output .= "<a href='$url_real' target='_blank'> <img src='$url_show[0]'/><div class='magnifier-icon' title='点击查看'></div></a>";
 			$image_output .= "</figure>";
@@ -155,7 +161,7 @@ function custom_gallery_output($output, $atts)
 
 		foreach ($ids as $id) {
 			$image_output .= "<figure class='gallery-item'>";
-			$url_show = wp_get_attachment_image_src($id, $atts["size"] ?? "thumbnail", false);
+			$url_show = wp_get_attachment_image_src($id, $atts["size"] ?? $defaultImageStr, false);
 			$url_real = wp_get_attachment_url($id);
 			$image_output .= "<a href='$url_real' data-lightbox='gallery-$instance' ><img src='$url_show[0]' /><div class='magnifier-icon' title='点击查看'></div></a>";
 			$image_output .= "</figure>";
@@ -163,7 +169,7 @@ function custom_gallery_output($output, $atts)
 	} else if ($atts['link'] === 'none') {
 		foreach ($ids as $id) {
 			$image_output .= "<figure class='gallery-item'>";
-			$url_show = wp_get_attachment_image_src($id, $atts["size"] ?? "thumbnail", false);
+			$url_show = wp_get_attachment_image_src($id, $atts["size"] ?? $defaultImageStr, false);
 			$url_real = wp_get_attachment_url($id);
 			$image_output .= "<img src='$url_show[0]'/>";
 			$image_output .= "</figure>";
