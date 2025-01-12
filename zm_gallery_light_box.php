@@ -75,13 +75,20 @@ function custom_gallery_output($output, $atts)
 		<style type='text/css'>
 			#{$selector} {
 				column-count: {$columns};
-				column-gap: 4px;
+				column-gap: 5px;
+				height: auto;
+				overflow:hidden;
+				padding:1px;
+				box-sizing: border-box;
 			}
 			#{$selector} .gallery-item {
-
+				display: inline-flex;
+				flex-direction: column;
+				width: 100%;
 				box-sizing: border-box;
+				break-inside: avoid;
 				border:6px solid #fff;
-				margin: 1px 1px 5px 1px;
+				margin: 1px 0px 5px 0px;
 				box-shadow:0 0 0 1px #12376914,0 1px 1px #1237690a,0 3px 3px #12376908,0 6px 4px #12376905,0 11px 4px #12376903
 			}
 
@@ -94,6 +101,7 @@ function custom_gallery_output($output, $atts)
 
 				
 			#{$selector} img {
+					display: block;
 				    box-sizing:border-box;
 					width: 100%;
 					max-width: 100%;
