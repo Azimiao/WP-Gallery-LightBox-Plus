@@ -74,21 +74,21 @@ function custom_gallery_output($output, $atts)
 	$gallery_style = "
 		<style type='text/css'>
 			#{$selector} {
-				column-count: {$columns};
-				column-gap: 5px;
-				height: auto;
-				overflow:hidden;
-				padding:1px;
-				box-sizing: border-box;
+			 	flex: 1;
+				columns: {$columns};
+				column-gap: 2px;
+  				padding-bottom: 0.9em;
+			}
+			/* Not fixed, just looks better in Safari(iOS,MacOS) */
+			#{$selector} .avoidwebkitbug14137{
+				border:1px solid transparent;
+				break-inside: avoid;
+				margin-bottom: 2px;
 			}
 			#{$selector} .gallery-item {
-				display: inline-flex;
-				flex-direction: column;
-				width: 100%;
-				box-sizing: border-box;
 				break-inside: avoid;
-				border:6px solid #fff;
-				margin: 1px 0px 5px 0px;
+				border:5px solid #fff;
+				margin-top:0;
 				box-shadow:0 0 0 1px #12376914,0 1px 1px #1237690a,0 3px 3px #12376908,0 6px 4px #12376905,0 11px 4px #12376903
 			}
 
@@ -159,28 +159,34 @@ function custom_gallery_output($output, $atts)
 	if (!isset($atts['link'])) {
 
 		foreach ($ids as $id) {
+			$image_output .= "<div class='avoidwebkitbug14137'>";
 			$image_output .= "<figure class='gallery-item'>";
 			$url_show = wp_get_attachment_image_src($id, $atts["size"] ?? $defaultImageStr, false);
 			$url_real = get_attachment_link($id) ?? "";
 			$image_output .= "<a href='$url_real' target='_blank'> <img src='$url_show[0]'/><div class='magnifier-icon' title='点击查看'></div></a>";
 			$image_output .= "</figure>";
+			$image_output .= "</div>";
 		}
 	} else if ($atts['link'] === 'file') {
 
 		foreach ($ids as $id) {
+			$image_output .= "<div class='avoidwebkitbug14137'>";
 			$image_output .= "<figure class='gallery-item'>";
 			$url_show = wp_get_attachment_image_src($id, $atts["size"] ?? $defaultImageStr, false);
 			$url_real = wp_get_attachment_url($id);
 			$image_output .= "<a href='$url_real' data-lightbox='gallery-$instance' ><img src='$url_show[0]' /><div class='magnifier-icon' title='点击查看'></div></a>";
 			$image_output .= "</figure>";
+			$image_output .= "</div>";
 		}
 	} else if ($atts['link'] === 'none') {
 		foreach ($ids as $id) {
+			$image_output .= "<div class='avoidwebkitbug14137'>";
 			$image_output .= "<figure class='gallery-item'>";
 			$url_show = wp_get_attachment_image_src($id, $atts["size"] ?? $defaultImageStr, false);
 			$url_real = wp_get_attachment_url($id);
 			$image_output .= "<img src='$url_show[0]'/>";
 			$image_output .= "</figure>";
+			$image_output .= "</div>";
 		}
 	} else {
 		return $output;
