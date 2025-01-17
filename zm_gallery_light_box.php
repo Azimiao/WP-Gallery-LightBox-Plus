@@ -87,7 +87,7 @@ function custom_gallery_output($output, $atts)
 			}
 			#{$selector} .gallery-item {
 				break-inside: avoid;
-				border:5px solid #fff;
+				border:6px solid #fff;
 				margin-top:0;
 				box-shadow:0 0 0 1px #12376914,0 1px 1px #1237690a,0 3px 3px #12376908,0 6px 4px #12376905,0 11px 4px #12376903
 			}
