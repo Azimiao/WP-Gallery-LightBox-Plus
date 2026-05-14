@@ -65,109 +65,68 @@ class GalleryLightBox_Admin{
 		$options = $this->getOption();
 
         ?>
-
-
         <style type="text/css">
-
-        #pure_form{font-family:"Century Gothic", "Segoe UI", Arial, "Microsoft YaHei",Sans-Serif;}
-        .wrap{padding:10px; font-size:12px; line-height:24px;color:#383838;}
-        .otakutable td{vertical-align:top;text-align: left;border:none ;font-size:12px; }
-        .top td{vertical-align: middle;text-align: left; border:none;font-size:12px;}
-        table{border:none;font-size:12px;}
-        pre{white-space: pre;overflow: auto;padding:0px;line-height:19px;font-size:12px;color:#898989;}
-        strong{ color:#666}
-        .none{display:none;}
-        fieldset{ width: 800px;margin: 5px 0 10px;
-        padding: 10px 10px 20px 10px;
-        -moz-border-radius: 5px;
-        -khtml-border-radius: 5px;
-        -webkit-border-radius: 5px;
-        border-radius: 5px;
-        border: 3px solid #ff8c83;}
-        fieldset:hover{border-color:#bbb;}
-        fieldset legend{color: #777;
-        font-size: 14px;
-        font-weight: 700;
-        cursor: pointer;
-        display: block;
-        text-shadow: 1px 1px 1px #fff;
-        min-width: 90px;
-        padding: 0 3px 0 3px;
-        border: 1px solid #fea3b2;
-        text-align: center;
-        line-height: 30px;}
-        fieldset .line{border-bottom:1px solid #e5e5e5;padding-bottom:15px;}
-        
+        .zm-glb-admin .postbox { max-width: 800px; }
+        .zm-glb-admin .postbox .inside { margin: 0; padding: 12px 16px; }
+        .zm-glb-admin .zm-glb-steps { margin: 0; padding-left: 1.2em; }
+        .zm-glb-admin .zm-glb-steps li { margin-bottom: 6px; line-height: 1.6; }
+        .zm-glb-admin .zm-glb-css-label { display: block; font-weight: 600; margin-bottom: 8px; }
+        .zm-glb-admin .zm-glb-actions { margin-top: 16px; display: flex; gap: 8px; align-items: center; }
         </style>
 
-
         <script type="text/javascript">
-
-
         jQuery(document).ready(function($){
-
-
-        $(".toggle").click(function(){$(this).next().slideToggle('normal')});
-
-
+            $('.zm-glb-admin .postbox .postbox-header').on('click', function(){
+                $(this).closest('.postbox').toggleClass('closed');
+            });
         });
-
-
         </script>
 
+        <div class="wrap zm-glb-admin">
 
-        <form action="#" method="post" enctype="multipart/form-data" name="pure_form" id="pure_form" />
+            <h1><?php echo esc_html(get_admin_page_title()); ?></h1>
 
+            <form action="" method="post">
 
-        <div class="wrap">
+                <!-- 使用说明 -->
+                <div class="postbox" style="margin-top: 20px;">
+                    <div class="postbox-header" style="cursor: pointer;">
+                        <h2 style="padding: 8px 12px; margin: 0;">使用说明</h2>
+                    </div>
+                    <div class="inside">
+                        <ol class="zm-glb-steps">
+                            <li>编辑文章或页面时选择左上角<strong>添加媒体</strong> → <strong>创建相册</strong>。</li>
+                            <li>选择你喜欢的图像（多选），后点击左下角<strong>创建新相册</strong>，进入相册设置页面。</li>
+                            <li>在右上角设置相册尺寸、排序，并将<strong>链接到</strong>选项修改为<strong>媒体文件</strong>。</li>
+                            <li>点击插入相册，即可在文章中加入相册短代码。</li>
+                        </ol>
+                        <p class="description">请注意：本插件依赖 jQuery。</p>
+                    </div>
+                </div>
 
+                <!-- 自定义CSS设置 -->
+                <div class="postbox">
+                    <div class="postbox-header" style="cursor: pointer;">
+                        <h2 style="padding: 8px 12px; margin: 0;">自定义样式</h2>
+                    </div>
+                    <div class="inside">
+                        <label class="zm-glb-css-label" for="zm-custom-css">自定义相册缩略图 CSS<span class="description">（不懂请留空）</span></label>
+                        <textarea id="zm-custom-css" name="customCss" rows="10" class="widefat code"><?php echo esc_textarea(empty($options['customCss']) ? '' : $options['customCss']); ?></textarea>
 
-        <div id="icon-options-general" class="icon32"><br></div>
+                        <input type="hidden" name="gallery-lightbox-save-nonce" value="<?php echo wp_create_nonce('gallery-lightbox-nonce'); ?>" />
 
+                        <div class="zm-glb-actions">
+                            <button type="submit" name="zm_gallerylightbox_save" class="button button-primary">保存设置</button>
+                            <button type="submit" name="zm_gallerylightbox_clear" class="button button-link-delete" onclick="return confirm('确定要清空自定义 CSS 吗？');">清空记录</button>
+                        </div>
+                    </div>
+                </div>
 
-        <h2>WP-Gallery-LightBox设置页面</h2><br>
-
-
-        <fieldset>
-
-        <legend class="toggle">WP相册使用说明</legend>
-            <div>
-            <p>
-            1.编辑文章或页面时选择左上角<strong>添加媒体</strong>-><strong>创建相册</strong>。<br>
-            2.选择你喜欢的图像(多选)，后点击左下角<strong>创建新相册</strong>，进入相册设置页面。<br>
-            3.在右上角设置相册尺寸，排序，并将<strong>链接到</strong>选项修改为<strong>媒体文件</strong>。<br>
-            4.点击插入相册，即可在文章中加入相册短代码。<br>
-            <strong>请注意：本插件依赖JQuery。</strong><br>
-            </p>
-            </div>
-        </fieldset>
-        <fieldset>
-        <legend class="toggle">设置</legend>
-
-
-            <div>
-
-
-                <table width="800" border="1" class="otakutable">
-
-                <tr>
-                    自定义相册缩略图CSS(不懂请留空)：
-                    <textarea name ="customCss" style="width:100%;height:200px"><?php echo(empty($options['customCss']) ? null: $options['customCss']); ?></textarea>
-                </tr>
-
-                </table>
-
-                <input type="hidden" id="gallery-lightbox-save-nonce" name="gallery-lightbox-save-nonce" value="<?php echo wp_create_nonce ('gallery-lightbox-nonce'); ?>" />
-                <input type="submit" name="zm_gallerylightbox_save" value="保存信息"  style="background:#ff8c83;color:#fff;border:none;cursor:pointer"/>&nbsp;&nbsp;&nbsp;&nbsp;<input type="submit" name="zm_gallerylightbox_clear" value="清空记录"  style="background:#ff8c83;color:#fff;border:none;cursor:pointer"/>
-            </div>
-        </fieldset>
+            </form>
         </div>
-        </form>
         <?php
 
         }
-    
-        
 
     }
 

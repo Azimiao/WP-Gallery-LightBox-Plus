@@ -4,7 +4,7 @@
  * Plugin Name: WP Gallery LightBox Plus 
  * Plugin URI: https://www.azimiao.com
  * Description: 一个对WP自带相册增加LightBox特效的小插件
- * Version: 1.0.6
+ * Version: 1.0.7
  * Author: WildRabbit
  * Author URI: https://www.azimiao.com
  * License: GPL
@@ -64,61 +64,54 @@ function custom_gallery_output($output, $atts)
 		return '';
 	}
 
-	$image_output = "";
-
 	$columns = intval($atts['columns'] ?? 3);
-
-
-
+	$count = count($ids);
 	$selector = "gallery-{$instance}";
+
+	// Determine layout mode: horizontal row vs masonry
+	$is_single_row = ($count <= $columns);
+
 	$gallery_style = "
 		<style type='text/css'>
 			#{$selector} {
-			 	flex: 1;
-				columns: {$columns};
-				column-gap: 2px;
-  				padding-bottom: 0.9em;
+				display: flex;
+				flex-wrap: wrap;
+				gap: 4px;
+				padding: 2px 2px 0.9em 2px;
 			}
-			/* Not fixed, just looks better in Safari(iOS,MacOS) */
-			#{$selector} .avoidwebkitbug14137{
-				border:1px solid transparent;
-				break-inside: avoid;
-				margin-bottom: 2px;
-			}
+
 			#{$selector} .gallery-item {
 				break-inside: avoid;
-				border:6px solid #fff;
-				margin-top:0;
-				box-shadow:0 0 0 1px #12376914,0 1px 1px #1237690a,0 3px 3px #12376908,0 6px 4px #12376905,0 11px 4px #12376903
+				border: 6px solid #fff;
+				margin: 0;
+				box-shadow: 0 0 0 1px #12376914, 0 1px 1px #1237690a, 0 3px 3px #12376908, 0 6px 4px #12376905, 0 11px 4px #12376903;
 			}
 
-
-				#{$selector} a {
-				display:block;
-				text-decoration:unset;
-				border:none !important;
+			#{$selector} a {
+				display: block;
+				text-decoration: unset;
+				border: none !important;
 			}
 
-				
 			#{$selector} img {
-					display: block;
-				    box-sizing:border-box;
-					width: 100%;
-					max-width: 100%;
-					height: auto;
-					margin: 0;
-					padding: 0;
-					border: none;
+				display: block;
+				box-sizing: border-box;
+				width: 100%;
+				max-width: 100%;
+				height: auto;
+				margin: 0;
+				padding: 0;
+				border: none;
 			}
 
 			#{$selector} .magnifier-icon {
 				position: absolute;
-				box-sizing: border-box; 
+				box-sizing: border-box;
 				bottom: 10px;
 				right: 10px;
 				width: 14px;
 				height: 14px;
-				background: rgba(0, 0, 0, 0.5); /* 半透明背景 */
+				background: rgba(0, 0, 0, 0.5);
 				border-radius: 50%;
 				display: flex;
 				align-items: center;
@@ -129,67 +122,122 @@ function custom_gallery_output($output, $atts)
 
 			#{$selector} .magnifier-icon::before {
 				content: '';
-				box-sizing: border-box; 
-				width: 14px; /* 改成10px */
-				height: 14px; /* 改成10px */
+				box-sizing: border-box;
+				width: 14px;
+				height: 14px;
 				border: 2px solid white;
-				border-radius: 50%; /* 确保圆形 */
+				border-radius: 50%;
 				display: inline-block;
 				position: relative;
 			}
 
 			#{$selector} a:hover .magnifier-icon {
-			transform: scale(1.25); /* 放大效果 */
-			background: rgba(255, 255, 255, 0.7);
+				transform: scale(1.25);
+				background: rgba(255, 255, 255, 0.7);
+			}
+
+			/* Single-row horizontal layout */
+			#{$selector}.zm-gallery-row .zm-gallery-col {
+				flex: 1 1 0%;
+				min-width: 0;
+			}
+
+			/* Masonry column layout */
+			#{$selector}.zm-gallery-masonry {
+				align-items: flex-start;
+			}
+
+			#{$selector}.zm-gallery-masonry .zm-gallery-col {
+				flex: 1 1 0%;
+				min-width: 0;
+				display: flex;
+				flex-direction: column;
+				gap: 4px;
 			}
 		</style>\n\t\t";
 
+	$image_output = $gallery_style;
 
-
-	$image_output .= $gallery_style;
-
+	// Custom CSS from admin settings
 	$zmGLCConfig = get_option('zm_gallerylightbox_config');
 	if (is_array($zmGLCConfig) && $zmGLCConfig['customCss'] != "") {
 		$image_output .= "<style>" . $zmGLCConfig['customCss'] . "</style>";
 	}
 
-	$image_output .= "<div id='$selector' class='gallery gallery-columns-{$columns}'>\r\n";
-
-
-	if (!isset($atts['link'])) {
-
-		foreach ($ids as $id) {
-			$image_output .= "<div class='avoidwebkitbug14137'>";
-			$image_output .= "<figure class='gallery-item'>";
-			$url_show = wp_get_attachment_image_src($id, $atts["size"] ?? $defaultImageStr, false);
-			$url_real = get_attachment_link($id) ?? "";
-			$image_output .= "<a href='$url_real' target='_blank'> <img src='$url_show[0]'/><div class='magnifier-icon' title='点击查看'></div></a>";
-			$image_output .= "</figure>";
-			$image_output .= "</div>";
+	// Determine link mode
+	$link_mode = $atts['link'] ?? 'default';
+	if (!in_array($link_mode, ['default', 'file', 'none'], true)) {
+		// fallback for unknown link= value: let WP handle it
+		if (isset($atts['link'])) {
+			return $output;
 		}
-	} else if ($atts['link'] === 'file') {
+		$link_mode = 'default';
+	}
 
-		foreach ($ids as $id) {
-			$image_output .= "<div class='avoidwebkitbug14137'>";
-			$image_output .= "<figure class='gallery-item'>";
-			$url_show = wp_get_attachment_image_src($id, $atts["size"] ?? $defaultImageStr, false);
-			$url_real = wp_get_attachment_url($id);
-			$image_output .= "<a href='$url_real' data-lightbox='gallery-$instance' ><img src='$url_show[0]' /><div class='magnifier-icon' title='点击查看'></div></a>";
-			$image_output .= "</figure>";
-			$image_output .= "</div>";
+	// Build individual image items
+	$items = [];
+	foreach ($ids as $id) {
+		$url_show = wp_get_attachment_image_src($id, $atts["size"] ?? $defaultImageStr, false);
+		if (!$url_show) continue;
+
+		$inner = '';
+		if ($link_mode === 'none') {
+			$inner = "<img src='{$url_show[0]}'/>";
+		} else {
+			if ($link_mode === 'file') {
+				$url_link = wp_get_attachment_url($id);
+				$link_attrs = "href='{$url_link}' data-lightbox='gallery-{$instance}'";
+			} else {
+				// default: link to attachment page
+				$url_link = get_attachment_link($id) ?? "";
+				$link_attrs = "href='{$url_link}' target='_blank'";
+			}
+			$inner = "<a {$link_attrs}><img src='{$url_show[0]}'/><div class='magnifier-icon' title='点击查看'></div></a>";
 		}
-	} else if ($atts['link'] === 'none') {
-		foreach ($ids as $id) {
-			$image_output .= "<div class='avoidwebkitbug14137'>";
-			$image_output .= "<figure class='gallery-item'>";
-			$url_show = wp_get_attachment_image_src($id, $atts["size"] ?? $defaultImageStr, false);
-			$url_real = wp_get_attachment_url($id);
-			$image_output .= "<img src='$url_show[0]'/>";
-			$image_output .= "</figure>";
-			$image_output .= "</div>";
+
+		$items[] = "<figure class='gallery-item'>{$inner}</figure>";
+	}
+
+	$actual_count = count($items);
+	if ($actual_count === 0) {
+		return '';
+	}
+
+	if ($actual_count <= $columns) {
+		// Single-row: each image is a direct flex child
+		$layout_class = 'zm-gallery-row';
+		$image_output .= "<div id='{$selector}' class='gallery gallery-columns-{$columns} {$layout_class}'>\r\n";
+		foreach ($items as $item) {
+			$image_output .= "<div class='zm-gallery-col'>{$item}</div>";
 		}
 	} else {
-		return $output;
+		// Masonry: distribute items into columns, filling column-by-column (top to bottom, left to right)
+		$layout_class = 'zm-gallery-masonry';
+		$image_output .= "<div id='{$selector}' class='gallery gallery-columns-{$columns} {$layout_class}'>\r\n";
+
+		// Initialize columns
+		$col_items = array_fill(0, $columns, []);
+
+		// Distribute items column-by-column (top to bottom, left to right).
+		// First (count % columns) columns get one extra item.
+		$base = intval(floor($actual_count / $columns));
+		$remainder = $actual_count % $columns;
+		$idx = 0;
+		for ($c = 0; $c < $columns; $c++) {
+			$size = ($c < $remainder) ? ($base + 1) : $base;
+			for ($r = 0; $r < $size; $r++) {
+				$col_items[$c][] = $items[$idx];
+				$idx++;
+			}
+		}
+
+		foreach ($col_items as $col) {
+			$image_output .= "<div class='zm-gallery-col'>";
+			foreach ($col as $item) {
+				$image_output .= $item;
+			}
+			$image_output .= "</div>";
+		}
 	}
 
 	$image_output .= "</div>";
